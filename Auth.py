@@ -86,7 +86,7 @@ class Config:
         "host": os.getenv("PGHOST"),
         
     }
-    CORS_ORIGINS = ["*"]
+    CORS_ORIGINS = ["https://club-notification-system.vercel.app"]
     SECRET_KEY = os.getenv("SECRET_KEY")
     BREVO_API_KEY = os.getenv("BREVO_API_KEY")
     PERMANENT_SESSION_LIFETIME = timedelta(
@@ -95,7 +95,7 @@ class Config:
 
 app = Flask(__name__,template_folder=os.path.join(os.getcwd(), 'template'))
 app.config.from_object(Config)
-socketio = SocketIO(app, cors_allowed_origins="*",message_queue="redis://localhost:6379")
+socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system.vercel.app",message_queue="redis://localhost:6379")
 
 
 @socketio.on('connect')
