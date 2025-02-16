@@ -5,7 +5,6 @@ psycopg2-binary
 werkzeug
 python-dotenv
 marshmallow
-secrets
 flask-limiter
 flask-socketio
 redis
