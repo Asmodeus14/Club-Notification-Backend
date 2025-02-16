@@ -11,3 +11,5 @@ flask-socketio
 redis
 dramatiq
 sib-api-v3-sdk
+eventlet
+gunicorn
