@@ -707,8 +707,7 @@ def approve_request(user_id):
 
     except Exception as e:
         conn.rollback()  # Rollback in case of error
-        logging.error(f"Error approving request: {
-                      str(e)}")  # Log the real error
+        logging.error(f"Error approving request: {str(e)}")  # Log the real error
         return jsonify({"error": f"Failed to approve request: {str(e)}"}), 500
 
     finally:
@@ -803,8 +802,7 @@ def delete_user(user_id):
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
         # Log the search for the user
-        logging.info(f"Checking if user with ID {
-                     user_id} exists in the 'users' table.")
+        logging.info(f"Checking if user with ID {user_id} exists in the 'users' table.")
 
         # Check if user exists in 'users' (approved users)
         cur.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
@@ -812,16 +810,14 @@ def delete_user(user_id):
 
         if user:
             # Log that user was found
-            logging.info(f"User with ID {
-                         user_id} found. Proceeding with deletion.")
+            logging.info(f"User with ID {user_id} found. Proceeding with deletion.")
 
             # Delete the user
             cur.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
             conn.commit()
 
             # Log successful deletion
-            logging.info(f"User with ID {
-                         user_id} has been successfully deleted.")
+            logging.info(f"User with ID {user_id} has been successfully deleted.")
             cur.close()
             conn.close()
 
