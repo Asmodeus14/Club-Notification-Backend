@@ -23,7 +23,15 @@ load_dotenv(r"API.env")
 api_key = os.getenv("BREVO_API_KEY")
 
 # Configure Redis client (ensure connection parameters match your Docker setup)
-redis_client = Redis(host="localhost", port=6379, db=0)
+REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+
+redis_client = Redis(host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    ssl=True, db=0)
 
 # Optionally, set up the Dramatiq broker (if not already configured elsewhere)
 broker = RedisBroker(client=redis_client)
@@ -143,11 +151,11 @@ def process_email_queue():
 
 @dramatiq.actor
 def send_notification(user_id, message):
-    from Backend.Test import socketio
+    from flask_socketio import SocketIO
     # Simulate a background process delay
     time.sleep(2)
     
-    socketio.emit('notification', {'user_id': user_id, 'message': message})
+    SocketIO.emit('notification', {'user_id': user_id, 'message': message})
     print(f"Notification sent to user {user_id}: {message}")
 
 # queued_emails = redis_client.lrange(QUEUE_NAME, 0, -1)

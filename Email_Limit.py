@@ -38,7 +38,24 @@ import json
 from datetime import datetime
 from Docker import process_email_queue
 # Connect to Redis
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+from dotenv import load_dotenv
+import os
+
+load_dotenv(r"API.env")
+
+REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    ssl=True
+)
+
 
 QUEUE_NAME = "email_queue"
 

@@ -63,6 +63,7 @@ from datetime import datetime, timedelta
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_socketio import SocketIO, emit
+import redis
 
 
 reset_token = secrets.token_urlsafe(32)
@@ -89,13 +90,25 @@ class Config:
     CORS_ORIGINS = ["https://club-notification-system.vercel.app"]
     SECRET_KEY = os.getenv("SECRET_KEY")
     BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-    PERMANENT_SESSION_LIFETIME = timedelta(
-        hours=1)  # Set session lifetime to 1 hour
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)  # Set session lifetime to 1 hour
 
+REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+r = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    ssl=True
+)
 
 app = Flask(__name__,template_folder=os.path.join(os.getcwd(), 'template'))
 app.config.from_object(Config)
-socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system.vercel.app",message_queue="redis://localhost:6379")
+socketio = SocketIO(app, 
+    cors_allowed_origins="https://club-notification-system.vercel.app", 
+    message_queue=f"rediss://{REDIS_HOST}:{REDIS_PORT}?password={REDIS_PASSWORD}"
+)
 
 
 @socketio.on('connect')
