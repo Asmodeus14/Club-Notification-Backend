@@ -44,7 +44,8 @@ Configuration Requirements:
             🚀 Powered by Flask & Vue.js 🛠️
 ====================================================
 """
-
+import eventlet
+eventlet.monkey_patch()
 
 from psycopg2 import pool
 from flask import Flask, request, jsonify, g, session,render_template,abort
@@ -64,8 +65,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_socketio import SocketIO, emit
 import redis
-import eventlet
-eventlet.monkey_patch()
+
 
 
 reset_token = secrets.token_urlsafe(32)
