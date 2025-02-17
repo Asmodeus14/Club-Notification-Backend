@@ -107,7 +107,7 @@ app = Flask(__name__,template_folder=os.path.join(os.getcwd(), 'template'))
 app.config.from_object(Config)
 socketio = SocketIO(app, 
     cors_allowed_origins="https://club-notification-system.vercel.app", 
-    message_queue=f"rediss://{REDIS_HOST}:{REDIS_PORT}?password={REDIS_PASSWORD}"
+    message_queue=f"rediss://{REDIS_HOST}@{REDIS_PORT}?password={REDIS_PASSWORD}"
 )
 
 
