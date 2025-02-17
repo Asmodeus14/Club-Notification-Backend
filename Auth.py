@@ -114,7 +114,7 @@ def handle_disconnect():
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    storage_uri=f"{REDIS_URL}/1",
+    storage_uri=f"{REDIS_URL}",
     default_limits=["200 per day", "50 per hour"]
 )
 

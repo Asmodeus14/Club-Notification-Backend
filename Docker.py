@@ -26,7 +26,7 @@ api_key = os.getenv("BREVO_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL")
 
 
-redis_client = Redis(REDIS_URL, db=0)
+redis_client = Redis(REDIS_URL)
 
 # Optionally, set up the Dramatiq broker (if not already configured elsewhere)
 broker = RedisBroker(client=redis_client)
