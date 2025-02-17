@@ -23,15 +23,10 @@ load_dotenv(r"API.env")
 api_key = os.getenv("BREVO_API_KEY")
 
 # Configure Redis client (ensure connection parameters match your Docker setup)
-REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
-REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_URL = os.getenv("REDIS_URL")
 
 
-redis_client = Redis(host=REDIS_HOST,
-    port=REDIS_PORT,
-    password=REDIS_PASSWORD,
-    ssl=True, db=0)
+redis_client = Redis(REDIS_URL, db=0)
 
 # Optionally, set up the Dramatiq broker (if not already configured elsewhere)
 broker = RedisBroker(client=redis_client)

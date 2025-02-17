@@ -43,18 +43,10 @@ import os
 
 load_dotenv(r"API.env")
 
-REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
-REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_URL = os.getenv("REDIS_URL")
 
 
-
-redis_client = redis.Redis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    password=REDIS_PASSWORD,
-    ssl=True
-)
+redis_client = redis.Redis(host=REDIS_URL, decode_responses=True)
 
 
 QUEUE_NAME = "email_queue"

@@ -92,23 +92,13 @@ class Config:
     BREVO_API_KEY = os.getenv("BREVO_API_KEY")
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)  # Set session lifetime to 1 hour
 
-REDIS_HOST = os.getenv("REDIS_HOST", "still-flamingo-15880.upstash.io")
-REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_URL = os.getenv("REDIS_URL")
 
-r = redis.Redis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    password=REDIS_PASSWORD,
-    ssl=True
-)
 
 app = Flask(__name__,template_folder=os.path.join(os.getcwd(), 'template'))
+
 app.config.from_object(Config)
-socketio = SocketIO(app, 
-    cors_allowed_origins="https://club-notification-system.vercel.app", 
-    message_queue=f"rediss://{REDIS_HOST}@{REDIS_PORT}?password={REDIS_PASSWORD}"
-)
+socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system.vercel.app", message_queue=REDIS_URL)
 
 
 @socketio.on('connect')
