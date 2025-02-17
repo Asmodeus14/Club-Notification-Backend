@@ -89,7 +89,7 @@ class Config:
         "host": os.getenv("PGHOST"),
         
     }
-    CORS_ORIGINS = ["https://club-notification-system.vercel.app"]
+    CORS_ORIGINS = ["https://club-notification-system-d5bf8anh8.vercel.app"]
     SECRET_KEY = os.getenv("SECRET_KEY")
     BREVO_API_KEY = os.getenv("BREVO_API_KEY")
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)  # Set session lifetime to 1 hour
