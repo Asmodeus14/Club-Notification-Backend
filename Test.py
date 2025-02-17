@@ -1,16 +1,18 @@
-import redis
 import os
-import dotenv
-# Use your Redis URL
-dotenv.load_dotenv(r"API.env")
+from flask import Flask
+from flask_socketio import SocketIO
+from dotenv import load_dotenv
+
+load_dotenv(r"API.env")
+# Load environment variables
+
 REDIS_URL = os.getenv("REDIS_URL")
 
-try:
-    redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
-    pong = redis_client.ping()
-    if pong:
-        print("✅ Redis is accessible!")
-    else:
-        print("❌ Redis connection failed!")
-except Exception as e:
-    print(f"❌ Error: {e}")
+# Your Flask app setup
+app = Flask(__name__)
+
+# Initialize SocketIO with the Redis URL
+socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system.vercel.app", message_queue=REDIS_URL)
+
+if __name__ == '__main__':
+    socketio.run(app)
