@@ -64,6 +64,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_socketio import SocketIO, emit
 import redis
+import eventlet
+eventlet.monkey_patch()
 
 
 reset_token = secrets.token_urlsafe(32)
@@ -98,7 +100,7 @@ REDIS_URL = os.getenv("REDIS_URL")
 app = Flask(__name__,template_folder=os.path.join(os.getcwd(), 'template'))
 
 app.config.from_object(Config)
-socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system.vercel.app", message_queue=REDIS_URL)
+socketio = SocketIO(app, cors_allowed_origins="https://club-notification-system-d5bf8anh8.vercel.app", message_queue=REDIS_URL)
 
 
 @socketio.on('connect')
