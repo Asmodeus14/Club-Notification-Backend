@@ -604,7 +604,10 @@ def forgot_password():
     </body>
     </html>
     """
-
+    # **Check email before sending**
+    if not is_valid_email(email):
+        return jsonify({"error": "Email is invalid, cannot send"}), 400
+    
     if check_brevo_email_quota(Email_limit_API) != 0:
         send_single_email.send(email, "Password Reset Request", content)
     else:
