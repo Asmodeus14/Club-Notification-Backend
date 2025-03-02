@@ -64,7 +64,7 @@ from datetime import datetime, timedelta
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_socketio import SocketIO, emit
-import redis
+import re
 
 
 
@@ -89,7 +89,7 @@ class Config:
         "host": os.getenv("PGHOST"),
         
     }
-    CORS_ORIGINS = ["https://club-notification-system-d5bf8anh8.vercel.app","https://club-notification-system.vercel.app","https://club-notification-system-9vcuzf1iv.vercel.app","https://club-notification-system-abhay-singhs-projects-16f3b358.vercel.app"]
+    CORS_ORIGINS = ["https://club-notification-system.vercel.app"]
     SECRET_KEY = os.getenv("SECRET_KEY")
     BREVO_API_KEY = os.getenv("BREVO_API_KEY")
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)  # Set session lifetime to 1 hour
@@ -331,6 +331,10 @@ def clear_rejected_table_if_full():
 def error_response(message, status_code):
     return jsonify({"error": message}), status_code
 
+def is_valid_email(email):
+    """Validate email format."""
+    email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.match(email_regex, email) is not None
 
 
 def send_emails_apart_from_admin(message, position, emails, club):
@@ -350,10 +354,19 @@ def send_emails_apart_from_admin(message, position, emails, club):
             </body>
         </html>
         """
-        add_to_email_queue(emails, subject, content)
+        
+        for email in emails:  # Process each email individually
+            email = email.strip()  # Remove any whitespace
+            if is_valid_email(email):  # Validate before queuing
+                add_to_email_queue(email, subject, content)
+            else:
+                logging.warning(f"Skipping invalid email: {email}")
+
         logging.info("Successfully queued the emails.")
+        
     except Exception as e:
         logging.error(f"Error sending emails: {str(e)}")
+
 
 
 def send_emails_from_admin(message, position, emails):
@@ -373,10 +386,18 @@ def send_emails_from_admin(message, position, emails):
             </body>
         </html>
         """
-        add_to_email_queue(emails, subject, content)
+        for email in emails:
+            email = email.strip()  # Remove spaces
+            if is_valid_email(email):  # Validate email
+                add_to_email_queue(email, subject, content)
+            else:
+                logging.warning(f"Skipping invalid email: {email}")
+
         logging.info("Successfully queued the emails.")
+        
     except Exception as e:
         logging.error(f"Error sending emails: {str(e)}")
+
 
 
 def send_approval_email(email, name, club, position,unsubscribe_token, isstudent):
@@ -406,7 +427,7 @@ def send_approval_email(email, name, club, position,unsubscribe_token, isstudent
                 send_single_email.send(email, subject, content)
                 logging.info(f"Approval email sent to {email}")
         else:
-            unsubscribe_link=f"http://127.0.0.1:5000/Unsuscribe?token={unsubscribe_token}"
+            unsubscribe_link=f"https://club-notification-system.vercel.app/Unsuscribe?token={unsubscribe_token}"
             subject = f"Stay Updated with the Latest News from Campus Connect : {club}"
             content = f"""
             <html>
