@@ -611,7 +611,7 @@ def forgot_password():
         return jsonify({"error": "Email is invalid, cannot send"}), 400
     
     if check_brevo_email_quota(Email_limit_API) != 0:
-        send_single_email.send(email, "Password Reset Request", content)
+        send_single_email.send(email=email, subject="Password Reset Request", content=content,use_lock=True)
     else:
         return jsonify({"error": "Email not sent due to limit"}), 429
 
