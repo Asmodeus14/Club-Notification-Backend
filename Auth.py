@@ -553,6 +553,8 @@ def register():
 def forgot_password():
     email = request.form.get('email')
     user_id = request.form.get('user_id')
+    print(email, user_id)
+    logging.info(f"Forgot password request for {email} with user ID {user_id}")
 
     if not email or not user_id:
         return jsonify({"error": "Email and User ID are required"}), 400
