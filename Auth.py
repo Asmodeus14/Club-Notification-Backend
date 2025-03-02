@@ -387,14 +387,17 @@ def send_emails_from_admin(message, position, emails):
         </html>
         """
         for email in emails:
-            email = email.strip()  # Remove spaces
-            if is_valid_email(email):  # Validate email
+            if isinstance(email, dict):  # Ensure we extract the email if it's inside a dictionary
+                email = email.get("email", "").strip()
+            else:
+                email = email.strip()
+
+            if is_valid_email(email):
                 add_to_email_queue(email, subject, content)
             else:
                 logging.warning(f"Skipping invalid email: {email}")
-
-        logging.info("Successfully queued the emails.")
-        
+                logging.info("Successfully queued the emails.")
+                
     except Exception as e:
         logging.error(f"Error sending emails: {str(e)}")
 
