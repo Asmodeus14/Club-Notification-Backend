@@ -551,9 +551,9 @@ def register():
 
 @app.route('/api/forgot', methods=['POST'])
 def forgot_password():
-    email = request.form.get('email')
-    user_id = request.form.get('user_id')
-    print(email, user_id)
+    email = request.form.get('email').strip()
+    user_id = request.form.get('user_id').strip()
+    
     logging.info(f"Forgot password request for {email} with user ID {user_id}")
 
     if not email or not user_id:
