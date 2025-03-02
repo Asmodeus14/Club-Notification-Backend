@@ -554,59 +554,63 @@ def forgot_password():
     email = request.form.get('email')
     user_id = request.form.get('user_id')
 
-    if not email:
-        return error_response("Email is required", 400)
+    if not email or not user_id:
+        return jsonify({"error": "Email and User ID are required"}), 400
 
     conn = get_db_connection()
     if not conn:
-        return error_response("Database connection failed", 500)
+        return jsonify({"error": "Database connection failed"}), 500
 
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
-    user = cur.fetchone()
+    cur.execute("SELECT user_id, email FROM users WHERE user_id = %s", (user_id,))
+    user = cur.fetchone()  # Returns a tuple
 
     if not user:
-        return error_response("User not found", 404)
-    if user['email'] != email:
-        return error_response("Email does not match", 400)
-    # Generate a secure reset token
-    reset_token = secrets.token_urlsafe(32)
-    expiry_time = datetime.utcnow() + timedelta(hours=1)  # <-- Add this
+        return jsonify({"error": "User not found"}), 404
 
-# Update the database
+    # Convert tuple to dictionary
+    columns = [desc[0] for desc in cur.description]  # Get column names
+    user_dict = dict(zip(columns, user))  # Convert tuple to dictionary
+
+    if user_dict["email"] != email:
+        return jsonify({"error": "Email does not match"}), 400
+
+    # Generate secure reset token
+    reset_token = secrets.token_urlsafe(32)
+    expiry_time = (datetime.utcnow() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+
+    # Update the database
     cur.execute("""
         UPDATE users 
         SET reset_token = %s, reset_token_expiry = %s 
         WHERE email = %s
-    """, (reset_token, expiry_time, user['email']))
+    """, (reset_token, expiry_time, user_dict["email"]))
     conn.commit()
     cur.close()
     conn.close()
 
-    reset_link = f"http://localhost:8080/reset-password?token={reset_token}"
+    reset_link = f"https://club-notification-system.vercel.app/reset-password?token={reset_token}"
     content = f"""
     <html>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <body>
         <p>Dear Valued User,</p>
-        <p>You recently requested to reset your password. To proceed with the password reset, please click the button below:</p>
+        <p>Click the button below to reset your password:</p>
         <p style="text-align: center;">
-        <a href="{reset_link}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #ffffff; text-decoration: none; border-radius: 4px;">
-            Reset Your Password
+        <a href="{reset_link}" style="padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none;">
+            Reset Password
         </a>
         </p>
-        <p>If you did not request a password reset, please disregard this email or contact our support team immediately.</p>
-        <p>Thank you for your prompt attention to this matter.</p>
-        <p>Sincerely,<br>Your Support Team</p>
+        <p>If you didn't request this, ignore this email.</p>
     </body>
     </html>
     """
 
     if check_brevo_email_quota(Email_limit_API) != 0:
-        send_single_email(email, "Password Reset Request", content)
+        send_single_email.send(email, "Password Reset Request", content)
     else:
-        return jsonify({"message": "Email was not sent due to email limit."})
+        return jsonify({"error": "Email not sent due to limit"}), 429
 
-    return jsonify({"message": "Password reset email sent."}), 200
+    return jsonify({"message": "Password reset email sent"}), 200
 
 
 @app.route('/api/get_user/<string:user_id>', methods=['GET'])
